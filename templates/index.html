@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Document</title>
+</head>
+<body>
+        <div align="center">
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">Диапазон колонок</label>
+                    <div class="row">
+                        <div class="col">
+                            <input class="form-control" type="number" name="minCol" id="minCol" placeholder="Начало">
+                        </div>
+                        <div class="col">
+                            <input class="form-control" type="number" name="maxCol" id="maxCol" placeholder="Конец">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="formFile" class="form-label">Диапазон строк</label>
+                    <div class="row">
+                        <div class="col">
+                            <input class="form-control" type="number" name="minRow" id="minRow" placeholder="Начало">
+                        </div>
+                        <div class="col">
+                            <input class="form-control" type="number" name="maxRow" id="maxRow" placeholder="Конец">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary mb-3">Generate</button>
+                </div>
+            </form>
+            {% for table in tables %}
+            {{ table|safe }}
+            {% endfor %}
+            <p>
+                <p style="font-weight: 700">Описание</p>
+            Give an upvote😉 This dataset is now a small part of Insider Trading S&P500 - Inside Info It is important to keep an eye on large wallets when analyzing and predicting stocks This file contains big wallet operations like Selling, Buying or Optional actions since 2021-11-10 Dataset updated to include transactions on July 27, 2022
+            </p>
+
+        </div>
+    </body>
+</html>
