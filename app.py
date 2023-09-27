@@ -18,13 +18,15 @@ def get_column_description(df):
 def table():
     column_descriptions = get_column_description(df)
 
+    new_df['Value ($)'] = new_df['Value ($)'].astype(str)
     new_df['Value ($)'] = new_df['Value ($)'].str.replace(',', '').astype('int64')
-    new_df['SEC Form 4'] = new_df['SEC Form 4'].str[0:3]
+    new_df['Date'] = pd.DatetimeIndex(df['Date']).month
+
 
     Insider = new_df.groupby('Insider Trading').agg({'Value ($)': ['min', 'max', 'mean']})
     Relationship = new_df.groupby('Relationship').agg({'Value ($)': ['min', 'max', 'mean']})
     Transaction = new_df.groupby('Transaction').agg({'Value ($)': ['min', 'max', 'mean']})
-    Month = new_df.groupby('SEC Form 4').agg({'Value ($)': ['min', 'max', 'mean']})
+    Month = new_df.groupby('Date').agg({'Value ($)': ['min', 'max', 'mean']})
 
     # print(Insider)
     # print(Relationship)
