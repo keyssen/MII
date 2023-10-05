@@ -13,6 +13,8 @@ def get_column_description(df):
     list.sort(key=lambda x: x[0])
     return list
 
+def format_number(num):
+    return '{:,}'.format(int(num)).replace(',', ' ')
 
 @app.route('/', methods=['GET', 'POST'])
 def table():
@@ -24,10 +26,13 @@ def table():
 
 
     Insider = new_df.groupby('Insider Trading').agg({'Value ($)': ['min', 'max', 'mean']})
+    Insider = Insider.applymap(format_number)
     Relationship = new_df.groupby('Relationship').agg({'Value ($)': ['min', 'max', 'mean']})
+    Relationship = Relationship.applymap(format_number)
     Transaction = new_df.groupby('Transaction').agg({'Value ($)': ['min', 'max', 'mean']})
+    Transaction = Transaction.applymap(format_number)
     Month = new_df.groupby('Date').agg({'Value ($)': ['min', 'max', 'mean']})
-
+    Month = Month.applymap(format_number)
     # print(Insider)
     # print(Relationship)
     # print(Transaction)
