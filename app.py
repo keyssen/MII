@@ -183,8 +183,6 @@ def findURL():
         word_links = []
         for item in links:
             word_links.append({item, word})
-        print(word_links)
-
         return render_template('findURL.html', word_links=word_links)
     return render_template('findURL.html')
 
