@@ -7,10 +7,16 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
+from helper.SiteSearch import SiteSearch
+
 app = Flask(__name__)
 df = pd.read_csv('TSLA.csv')
 new_df = copy.deepcopy(df)
 chart_df = copy.deepcopy(df)
+search_engine = SiteSearch()
+search_engine.add("https://www.kaggle.com/datasets/ankanhore545/100-highest-valued-unicorns", ["Company", "Valuation", "Country", "State", "City", "Industries", "Founded Year", "Name of Founders", "Total Funding", "Number of Employees"])
+search_engine.add("https://www.kaggle.com/datasets/ilyaryabov/tesla-insider-trading", ["Insider Trading", "Relationship", "Date", "Transaction", "Cost", "Shares", "Value", "Shares Total", "SEC Form 4"])
+search_engine.add("https://www.kaggle.com/datasets/sameepvani/nasa-nearest-earth-objects", ["NASA", "est_diameter_min", "est_diameter_max", "relative_velocity", "miss_distance", "orbiting_body", "sentry_object", "absolute_magnitude", "hazardous"])
 
 def get_column_description(df):
     result = pd.DataFrame(
@@ -164,6 +170,23 @@ def chart():
 
     return render_template('chart.html',
                            task_images=task_images)
+
+@app.route('/findURL', methods=['GET'])
+def get_page_findURL():
+    return render_template('findURL.html')
+
+@app.route('/findURL', methods=['POST'])
+def findURL():
+    word = request.form["word"]
+    if (search_engine.contains(word)):
+        links = search_engine.find_url(word)
+        word_links = []
+        for item in links:
+            word_links.append({item, word})
+        print(word_links)
+
+        return render_template('findURL.html', word_links=word_links)
+    return render_template('findURL.html')
 
 
 if __name__ == "__main__":
