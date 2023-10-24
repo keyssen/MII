@@ -1,3 +1,5 @@
+import io
+
 from flask import Flask, render_template, request
 import pandas as pd
 import copy
@@ -104,30 +106,64 @@ def update_agg_tables():
     return render_template('aggTables.html',
                            agg_tables = result_list)
 
+def create_bar_chart(task_title, task_data1, task_data2, y_label):
+    age_groups = task_data1.index
+    min_value = task_data1[y_label]['min'].values
+    mean_value = task_data1[y_label]['mean'].values
+    max_value = task_data1[y_label]['max'].values
+    min_value2 = task_data2[y_label]['min'].values
+    mean_value2 = task_data2[y_label]['mean'].values
+    max_value2 = task_data2[y_label]['max'].values
+
+    x = range(len(age_groups))
+    width = 0.2
+
+    plt.bar(x, min_value, width, alpha=0.5, label='Minimum ' + y_label)
+    plt.bar([val + width for val in x], mean_value, width, alpha=0.5, label='Mean ' + y_label)
+    plt.bar([val + width * 2 for val in x], max_value, width, alpha=0.5, label='Maximum ' + y_label)
+    plt.bar([val + width * 3 for val in x], min_value2, width, alpha=0.5, label='New Minimum ' + y_label)
+    plt.bar([val + width * 4 for val in x], mean_value2, width, alpha=0.5, label='New Mean ' + y_label)
+    plt.bar([val + width * 5 for val in x], max_value2, width, alpha=0.5, label='New Maximum ' + y_label)
+
+    plt.ylabel(y_label)
+    plt.xticks([val + width for val in x], age_groups)
+    plt.legend()
+    plt.title(task_title)
+
 @app.route('/chart', methods=['GET', 'POST'])
 def chart():
     agg_tables = get_agg_dataframe(get_df())
     update_agg_tables = get_agg_dataframe(get_average_df())
 
-    fig, axs = plt.subplots(4, 1)
-    fig.set_figwidth(15)
-    fig.set_figheight(30)
+    task_images = []
 
     for index, (item1, item2) in enumerate(zip(agg_tables, update_agg_tables)):
-        join_agg_table = pd.concat([item1, item2], axis=0)
-        axs[index].plot(join_agg_table)
-        axs[index].set_title(join_agg_table.index.name)
-        # axs[index].set_yscale('log')
-        axs[index].legend(['Value ($) min', 'Value ($) max', 'Value ($) mean'])
+        plt.figure(figsize=(20, 6))
+        plt.subplot(1, 1, 1)
 
-    plt.tight_layout()
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+        create_bar_chart(item1.index.name, item1, item2, 'Value ($)')
+        img_buffer = io.BytesIO()
+        plt.savefig(img_buffer, format="png")
+        img_buffer.seek(0)
+        img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+
+        task_images.append((f"data:image/png;base64,{img_base64}"))
+        plt.clf()
+
+    join = pd.concat([agg_tables[0], update_agg_tables[0]], axis=0)
+    plt.boxplot(join)
+    plt.yscale('log')
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format="png")
+    img_buffer.seek(0)
+    img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+
+    # Добавляем изображения в список задач с номером задачи
+    task_images.append((f"data:image/png;base64,{img_base64}"))
     plt.clf()
+
     return render_template('chart.html',
-                           image=image_base64)
+                           task_images=task_images)
 
 
 if __name__ == "__main__":

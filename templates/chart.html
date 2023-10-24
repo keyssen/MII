@@ -11,7 +11,13 @@
     <title>Document</title>
 </head>
 <body>
-<img src="data:image/png;base64,{{ image }}" alt="График">
+<div class="">
+    {% for image in task_images %}
+
+    <img src="{{ image|safe }}" alt="График">
+    {% endfor %}
+</div>
+
 
 <div align="center">
     <form action="/chart" method="get">
