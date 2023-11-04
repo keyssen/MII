@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="">
+    <img src="{{ linear_image }}" alt="График">
+    {% for message in listMessages %}
+        {{ message|safe }}
+    {% endfor %}
+</div>
+</body>
+</html>
