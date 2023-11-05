@@ -48,7 +48,7 @@ def get_average_df ():
     average_cost = round(df['Cost'].mean(), 2)
     df['Shares'] = df['Shares'].str.replace(',', '').astype(int)
     average_shares = int(df['Shares'].mean())
-    df['Value ($)'] = df['Value ($)'].astype(str).str.replace(',', '').astype('int64')
+    df['Value ($)'] = df['Value ($)'].str.replace(',', '').astype('int64')
     average_value = int(df['Value ($)'].mean())
     df['Shares Total'] = df['Shares Total'].str.replace(',', '').astype(int)
     average_sharesTotal = int(df['Shares Total'].mean())
@@ -79,8 +79,7 @@ def get_chart(first_dataFrame, second_dataFrame):
     return graph_url
 
 def get_agg_dataframe(this_df):
-    this_df['Value ($)'] = this_df['Value ($)'].astype(str)
-    this_df['Value ($)'] = this_df['Value ($)'].str.replace(',', '').astype('int64')
+    this_df['Value ($)'] = this_df['Value ($)'].astype(str).str.replace(',', '').astype('int64')
     this_df['Date'] = pd.DatetimeIndex(this_df['Date']).month
 
     Insider = this_df.groupby('Insider Trading').agg({'Value ($)': ['min', 'max', 'mean']})
@@ -187,7 +186,6 @@ def get_page_findURL():
 @app.route('/linearRegression', methods=['GET'])
 def linearRegression():
     plt.figure(figsize=(20, 6))
-    plt.subplot(1, 1, 1)
     listMessages = list(linear_regression())
     img_buffer = io.BytesIO()
     plt.savefig(img_buffer, format="png")

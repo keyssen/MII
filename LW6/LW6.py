@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 
 def linear_regression():
     this_df = pd.read_csv('TSLA.csv')
-    this_df['Value ($)'] = this_df['Value ($)'].astype(str)
     this_df['Value ($)'] = this_df['Value ($)'].str.replace(',', '').astype('int64')
     this_df['Transaction'] = this_df['Transaction'].replace({'Sale': 1, 'Option Exercise': 2})
     # unique_dict = {name: number for number, name in enumerate(this_df['Transaction'])}
