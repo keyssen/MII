@@ -1,62 +1,54 @@
-import os
-
 import numpy
-
 import pandas as pd
-
-import matplotlib.pyplot as plt
-
+from matplotlib import pyplot as plt
 
 
-# INCH = 25.4
-
-# def create_plot_jpg(df: pd.DataFrame):
-#     # набор атрибутов - независимых переменных - площадь
-#     column_value = df["Value ($)"].array
-#
-#     # набор меток - зависимых переменных, значение которых требуется предсказать - выручка
-#     column_transaction = df["Transaction"].array
-#
-#     # делим датафрейм на набор тренировочных данных и данных для тестов, test_size содержит определние соотношения этих наборов
-#     X_train, X_test, y_train, y_test = train_test_split(column_value, column_transaction, test_size=0.01, random_state=0)
-#
-#     regressor = LinearRegression()
-#
-#     # X_train = X_train.reshape(-1, 1)
-#     # X_test = X_test.reshape(-1, 1)
-#
-#     regressor.fit(X_train, y_train)
-#
-#     # массив numpy, который содержит все предсказанные значения для входных значений в серии X_test
-#     y_pred = regressor.predict(X_test)
-#
-#     df.plot(x='Store_Sales', y='Store_Area', style='o')
-#
-#     plt.title('Зависимость продаж от площади магазина')
-#     plt.xlabel('Продажи')
-#     plt.ylabel('Площадь')
-#
-#
-#     listMessages = ['Средняя абсолютная ошибка (MAE): ' + str(metrics.mean_absolute_error(y_test, y_pred)),
-#                     'Среднеквадратичная ошибка (MSE): ' + str(metrics.mean_squared_error(y_test, y_pred)),
-#                     'Среднеквадратичная ошибка (RMSE): ' + str(np.sqrt(metrics.mean_squared_error(y_test, y_pred)))]
-#
-#     return listMessages
-
-# def linear_regression(_x, _y):
 def linear_regression():
     this_df = pd.read_csv('TSLA.csv')
+    this_df['Value ($)'] = this_df['Value ($)'].astype(str)
+    this_df['Value ($)'] = this_df['Value ($)'].str.replace(',', '').astype('int64')
+    this_df['Transaction'] = this_df['Transaction'].replace({'Sale': 1, 'Option Exercise': 2})
+    # unique_dict = {name: number for number, name in enumerate(this_df['Transaction'])}
     X = numpy.array(this_df['Value ($)'])
     Y = numpy.array(this_df['Transaction'])
     n = X.size
-    sumX = sum(X)
-    sumY = sum(Y)
-    sumXY = sum(X*Y)
-    sumXX = sum(X*X)
-    b1 = (sumXY - (sumY * sumX) / n) / (sumXX - sumX * sumX / n)
-    b0 = (sumY - b1 * sumX) / n
-    plt.scatter(X, Y, alpha=0.8)
-    plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.2f}x {b0:+.2f}$')
+    # Разделение данных на обучающий и тестовый наборы
+    n_test = int(n * 0.2)
+    n_train = n - n_test
+    X_train, Y_train = X[:n_train], Y[:n_train]
+    X_test, Y_test = X[n_train:], Y[n_train:]
+    sumY_train = sum(Y_train)
+    sumX_train = sum(X_train)
+    sumXY_train = sum(X_train * Y_train)
+    sumXX_train = sum(X_train * X_train)
+
+    b1 = (sumXY_train - (sumY_train * sumX_train) / n_train) / (sumXX_train - sumX_train * sumX_train / n_train)
+    b0 = (sumY_train - b1 * sumX_train) / n_train
+
+    # Построение модели на обучающем наборе
+    plt.scatter(X_train, Y_train, alpha=0.8)
+    plt.axline(xy1=(0, b0), slope=b1, color='r', label=f'$y = {b1:.2f}x {b0:+.2f}$ (Training)')
+
+    # Оценка производительности модели на тестовом наборе
+    Y_pred = b0 + b1 * X_test
+    mse = sum((Y_test - Y_pred)**2) / n_test
+
+    plt.scatter(X_test, Y_test, alpha=0.8, color='g')
+
     plt.legend()
-    plt.show()
-    print(X, Y)
+    return mse, r_squared(Y_test, Y_pred)
+
+def r_squared(y_true, y_pred):
+    # Вычисляем среднее значение целевой переменной
+    mean_y_true = numpy.mean(y_true)
+
+    # Вычисляем сумму квадратов отклонений от среднего
+    ss_total = numpy.sum((y_true - mean_y_true) ** 2)
+
+    # Вычисляем сумму квадратов остатков
+    ss_residual = numpy.sum((y_true - y_pred) ** 2)
+
+    # Вычисляем коэффициент детерминации
+    r_squared = 1 - (ss_residual / ss_total)
+
+    return r_squared
