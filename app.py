@@ -152,8 +152,6 @@ def chart():
 
     for index, (item1, item2) in enumerate(zip(agg_tables, update_agg_tables)):
         plt.figure(figsize=(20, 6))
-        plt.subplot(1, 1, 1)
-
         create_bar_chart(item1.index.name, item1, item2, 'Value ($)')
         img_buffer = io.BytesIO()
         plt.savefig(img_buffer, format="png")
