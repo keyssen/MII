@@ -1,23 +1,23 @@
 import io
 
-import numpy
-import numpy as np
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import pandas as pd
 import copy
 import matplotlib.pyplot as plt
-from io import BytesIO
 import base64
 
-from sklearn import metrics
-from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-
-from LW6.LW6 import linear_regression
-from helper.SiteSearch import SiteSearch
+from LW.LW1.GetColumnDescription import get_column_description
+from LW.LW1.GetDF import get_df
+from LW.LW2.GetAggDataframe import get_agg_dataframe
+from LW.LW3.CreateBarChart import create_bar_chart
+from LW.LW3.FormatNumber import format_number
+from LW.LW3.GetAverageDf import get_average_df
+from LW.LW4.SiteSearch import SiteSearch
+from LW.LW5.LinearRegression import linear_regression
 
 app = Flask(__name__)
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
 df = pd.read_csv('TSLA.csv')
 new_df = copy.deepcopy(df)
 chart_df = copy.deepcopy(df)
@@ -26,67 +26,9 @@ search_engine.add("https://www.kaggle.com/datasets/ankanhore545/100-highest-valu
 search_engine.add("https://www.kaggle.com/datasets/ilyaryabov/tesla-insider-trading", ["Insider Trading", "Relationship", "Date", "Transaction", "Cost", "Shares", "Value", "Shares Total", "SEC Form 4"])
 search_engine.add("https://www.kaggle.com/datasets/sameepvani/nasa-nearest-earth-objects", ["NASA", "est_diameter_min", "est_diameter_max", "relative_velocity", "miss_distance", "orbiting_body", "sentry_object", "absolute_magnitude", "hazardous"])
 
-def get_column_description(df):
-    result = pd.DataFrame(
-        {'columns': df.columns, 'types': df.dtypes, 'empty': df.isnull().sum(), 'fill': df.notnull().sum()})
-    list = result.values.tolist()
-    list.sort(key=lambda x: x[0])
-    return list
 
-def get_df():
-    return pd.read_csv('TSLA.csv')
 
-def format_number(num):
-    return '{:,}'.format(int(num)).replace(',', ' ')
 
-def get_average_df ():
-    df = get_df()
-    average_insider = df['Insider Trading'].value_counts().idxmax()
-    average_relationship = df['Relationship'].value_counts().idxmax()
-    average_date = pd.to_datetime(df['Date']).mean().date()
-    average_transaction = df['Transaction'].value_counts().idxmax()
-    average_cost = round(df['Cost'].mean(), 2)
-    df['Shares'] = df['Shares'].str.replace(',', '').astype(int)
-    average_shares = int(df['Shares'].mean())
-    df['Value ($)'] = df['Value ($)'].str.replace(',', '').astype('int64')
-    average_value = int(df['Value ($)'].mean())
-    df['Shares Total'] = df['Shares Total'].str.replace(',', '').astype(int)
-    average_sharesTotal = int(df['Shares Total'].mean())
-    average_SEC = str(pd.to_datetime(df['SEC Form 4'], format='%b %d %I:%M %p').mean().strftime("%b %d %I:%M %p"))
-    for i in range(10):
-        new_row = {
-            'Insider Trading': average_insider,
-            'Relationship': average_relationship,
-            'Date': average_date,
-            'Transaction': average_transaction,
-            'Cost': average_cost,
-            'Shares': average_shares,
-            'Value ($)': average_value,
-            'Shares Total': average_sharesTotal,
-            'SEC Form 4': average_SEC
-        }
-        df.loc[len(df)] = new_row
-    return df
-
-def get_chart(first_dataFrame, second_dataFrame):
-    join_dataFrame = pd.concat([first_dataFrame, second_dataFrame], axis=0)
-    plt.plot(join_dataFrame)
-    img = BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.clf()
-    graph_url = base64.b64encode(img.getvalue()).decode()
-    return graph_url
-
-def get_agg_dataframe(this_df):
-    this_df['Value ($)'] = this_df['Value ($)'].astype(str).str.replace(',', '').astype('int64')
-    this_df['Date'] = pd.DatetimeIndex(this_df['Date']).month
-
-    Insider = this_df.groupby('Insider Trading').agg({'Value ($)': ['min', 'max', 'mean']})
-    Relationship = this_df.groupby('Relationship').agg({'Value ($)': ['min', 'max', 'mean']})
-    Transaction = this_df.groupby('Transaction').agg({'Value ($)': ['min', 'max', 'mean']})
-    Month = this_df.groupby('Date').agg({'Value ($)': ['min', 'max', 'mean']})
-    return [Insider, Relationship, Transaction, Month]
 
 @app.route('/', methods=['GET', 'POST'])
 def table():
@@ -119,29 +61,7 @@ def update_agg_tables():
     return render_template('aggTables.html',
                            agg_tables = result_list)
 
-def create_bar_chart(task_title, task_data1, task_data2, y_label):
-    age_groups = task_data1.index
-    min_value = task_data1[y_label]['min'].values
-    mean_value = task_data1[y_label]['mean'].values
-    max_value = task_data1[y_label]['max'].values
-    min_value2 = task_data2[y_label]['min'].values
-    mean_value2 = task_data2[y_label]['mean'].values
-    max_value2 = task_data2[y_label]['max'].values
 
-    x = range(len(age_groups))
-    width = 0.2
-
-    plt.bar(x, min_value, width, alpha=0.5, label='Minimum ' + y_label)
-    plt.bar([val + width for val in x], mean_value, width, alpha=0.5, label='Mean ' + y_label)
-    plt.bar([val + width * 2 for val in x], max_value, width, alpha=0.5, label='Maximum ' + y_label)
-    plt.bar([val + width * 3 for val in x], min_value2, width, alpha=0.5, label='New Minimum ' + y_label)
-    plt.bar([val + width * 4 for val in x], mean_value2, width, alpha=0.5, label='New Mean ' + y_label)
-    plt.bar([val + width * 5 for val in x], max_value2, width, alpha=0.5, label='New Maximum ' + y_label)
-
-    plt.ylabel(y_label)
-    plt.xticks([val + width for val in x], age_groups)
-    plt.legend()
-    plt.title(task_title)
 
 @app.route('/chart', methods=['GET', 'POST'])
 def chart():
@@ -176,11 +96,6 @@ def chart():
     return render_template('chart.html',
                            task_images=task_images)
 
-@app.route('/findURL', methods=['GET'])
-def get_page_findURL():
-    return render_template('findURL.html')
-
-
 @app.route('/linearRegression', methods=['GET'])
 def linearRegression():
     plt.figure(figsize=(20, 6))
@@ -195,14 +110,27 @@ def linearRegression():
 
 @app.route('/findURL', methods=['POST'])
 def findURL():
-    word = request.form["word"]
-    if (search_engine.contains(word)):
-        links = search_engine.find_url(word)
-        word_links = []
-        for item in links:
-            word_links.append({item, word})
-        return render_template('findURL.html', word_links=word_links)
+    session['word'] = request.form["word"]
+    if (search_engine.contains(session.get('word'))):
+        links = search_engine.find_url(session.get('word'))
+        return render_template('findURL.html', condition = True)
     return render_template('findURL.html')
+
+@app.route('/findURL', methods=['GET'])
+def get_page_findURL():
+    return render_template('findURL.html')
+
+@app.route('/true_findURL', methods=['GET'])
+def true_findURL():
+    links = search_engine.find_url(session.get('word'))
+    return render_template('findURL.html', links = links)
+
+# @app.route('/findURL', methods=['POST'])
+# def findURL():
+#     session['word'] = request.form["word"]
+#     if (search_engine.contains(session.get('word'))):
+#         return render_template('findURL.html', condition = True)
+#     return render_template('findURL.html')
 
 
 if __name__ == "__main__":

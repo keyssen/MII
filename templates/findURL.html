@@ -21,10 +21,21 @@
                 </div>
             </div>
         </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary mb-3">Поиск</button>
+        </div>
     </form>
+    {% if condition %}
+        <form action="/true_findURL" method="get">
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary mb-3">Вывести</button>
+            </div>
+        </form>
+    {% else %}
+    {% endif %}
     <div class="">
-        {% for link, word in word_links %}
-            <a href="{{ link }}">{{ word }}</a>
+        {% for link in links %}
+            <a href="{{ link }}">{{ link }}</a>
         {% endfor %}
     </div>
 </div>

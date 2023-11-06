@@ -1,4 +1,4 @@
-from helper.BloomFilter import BloomFilter
+from LW.LW4.BloomFilter import BloomFilter
 
 
 class SiteSearch:
