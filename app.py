@@ -106,7 +106,7 @@ def linearRegression():
     img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
     linear_image = (f"data:image/png;base64,{img_base64}")
     plt.clf()
-    return render_template('LW6.html', linear_image=linear_image, listMessages=listMessages)
+    return render_template('LW5.html', linear_image=linear_image, listMessages=listMessages)
 
 @app.route('/findURL', methods=['POST'])
 def findURL():
