@@ -1,5 +1,6 @@
 import io
 
+import numpy as np
 from flask import Flask, render_template, request, session
 import pandas as pd
 import copy
@@ -15,6 +16,7 @@ from LW.LW3.GetAverageDf import get_average_df
 from LW.LW4.SiteSearch import SiteSearch
 from LW.LW5.LinearRegression import linear_regression
 from LW.LW6.decisionView import decision_View
+from LW.LW7.clasterization import clasterization
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -138,6 +140,30 @@ def decisionTree():
     linear_image = (f"data:image/png;base64,{img_base64}")
     plt.clf()
     return render_template('LW6.html', linear_image=linear_image, accuracy=accuracy)
+
+@app.route('/clast', methods=['GET', 'POST'])
+def clast():
+    data = get_df()
+    data['Transaction'] = data['Transaction'].replace({'Sale': 1, 'Option Exercise': 2})
+    data['Transaction'] = data['Transaction']
+    data['Value ($)'] = data['Value ($)'].str.replace(',', '').astype('int64')
+    data['Value ($)'] = data['Value ($)'].apply(lambda x: x)
+    # print("FSEFESEF")
+    # print(data.iloc[:, [3, 6]])
+    # print(len(data.groupby("Transaction")["Transaction"].mean()))
+    clast = clasterization(data.iloc[:, [3, 6]].to_numpy(), len(data.groupby("Transaction")["Transaction"].mean()))
+    clast.clast()
+    return render_template('clast.html')
+
+# @app.route('/clast', methods=['GET', 'POST'])
+# def clast():
+#     data = pd.read_csv('AgeDataset-V1.csv', nrows=1000)
+#     Centurydata = data.assign(Century=(data.iloc[:, [6]] / 100).apply(np.ceil))
+#     Centurydata['Century'] = Centurydata['Century'].apply(lambda x: x * 1)
+#     clast = cl.clasterization(Centurydata.iloc[:, [10, 9]].to_numpy(), len(Centurydata.groupby("Century")["Century"].mean()))
+#     clast.clast()
+#     return render_template('clast.html')
+
 
 # @app.route('/findURL', methods=['POST'])
 # def findURL():
