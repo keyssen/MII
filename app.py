@@ -14,6 +14,7 @@ from LW.LW3.FormatNumber import format_number
 from LW.LW3.GetAverageDf import get_average_df
 from LW.LW4.SiteSearch import SiteSearch
 from LW.LW5.LinearRegression import linear_regression
+from LW.LW6.decisionView import decision_View
 
 app = Flask(__name__)
 app.secret_key = 'super secret key'
@@ -124,6 +125,19 @@ def get_page_findURL():
 def true_findURL():
     links = search_engine.find_url(session.get('word'))
     return render_template('findURL.html', links = links)
+
+
+@app.route('/decisionTree', methods=['GET'])
+def decisionTree():
+    plt.figure(figsize=(20, 6))
+    accuracy = decision_View()
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format="png")
+    img_buffer.seek(0)
+    img_base64 = base64.b64encode(img_buffer.read()).decode("utf-8")
+    linear_image = (f"data:image/png;base64,{img_base64}")
+    plt.clf()
+    return render_template('LW6.html', linear_image=linear_image, accuracy=accuracy)
 
 # @app.route('/findURL', methods=['POST'])
 # def findURL():

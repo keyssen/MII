@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 import numpy as np
 
-from LW.LW6.DecisionTree import DecisionTree
+from LW.LW6.Class.DecisionTree import DecisionTree
 
 this_df = pd.read_csv('../../TSLA.csv')
 this_df['Value ($)'] = this_df['Value ($)'].str.replace(',', '').astype('int64')
@@ -32,7 +32,6 @@ def accuracy(y_test, y_pred):
 acc = accuracy(y_test, predictions)
 print(acc)
 
-clf.print_tree()
 
 x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
 y_min, y_max = X_train[:, 1].min() - 1, math.log2(X_train[:, 1].max() + 1)
