@@ -11,9 +11,9 @@ this_df = pd.read_csv('../../TSLA.csv')
 this_df['Value ($)'] = this_df['Value ($)'].str.replace(',', '').astype('int64')
 this_df['Transaction'] = this_df['Transaction'].replace({'Sale': 1, 'Option Exercise': 2})
 this_df['Date'] = pd.to_datetime(this_df['Date']).dt.month
-combined_array = this_df[['Date', 'Value ($)']].values.tolist()
+combined_array = this_df[['Date', 'Transaction']].values.tolist()
 X = np.array(combined_array)
-y = np.array(this_df['Transaction'].tolist())
+y = np.array(this_df['Value ($)'].tolist())
 
 # data = datasets.load_breast_cancer()
 # X, y = data.data, data.target
@@ -35,8 +35,8 @@ print(acc)
 clf.print_tree()
 
 x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
-y_min, y_max = X_train[:, 1].min() - 1, math.log2(X_train[:, 1].max() + 1)
-result_natural_log = np.log2(X_train[:, 1])
+y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
+result_natural_log = X_train[:, 1]
 xx, yy = np.meshgrid(np.arange(x_min, x_max),
                      np.arange(y_min, y_max))
 Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])

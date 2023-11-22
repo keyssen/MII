@@ -12,7 +12,7 @@ class Node:
         self.left = left
         self.right = right
         self.value = value
-        self.name = "Value" if feature == 1 else "Date"
+        self.name = "Transaction" if feature == 1 else "Date"
 
     def is_leaf_node(self):
         return self.value is not None
@@ -93,10 +93,18 @@ class DecisionTree:
         right_idxs = np.argwhere(X_column > split_thresh).flatten()
         return left_idxs, right_idxs
 
+    # def _entropy(self, y):
+    #     hist = np.bincount(y)
+    #     ps = hist / len(y)
+    #     return -np.sum([p * np.log(p) for p in ps if p>0])
+
+
     def _entropy(self, y):
-        hist = np.bincount(y)
-        ps = hist / len(y)
-        return -np.sum([p * np.log(p) for p in ps if p>0])
+        # Вычисляем энтропию выборки
+        _, counts = np.unique(y, return_counts=True)
+        probs = counts / len(y)
+        entropy = -np.sum(probs * np.log2(probs))
+        return entropy
 
 
     def _most_common_label(self, y):
