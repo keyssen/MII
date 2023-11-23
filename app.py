@@ -148,8 +148,6 @@ def clast():
     data['Transaction'] = data['Transaction'].replace({'Sale': 1, 'Option Exercise': 2})
     data['Transaction'] = data['Transaction']
     data['Value ($)'] = data['Value ($)'].str.replace(',', '').astype('int64')
-    data['Value ($)'] = data['Value ($)'].apply(lambda x: x)
-    print(data["Transaction"].unique())
     clast = clasterization(data.iloc[:, [3, 6]].to_numpy(), data["Transaction"].nunique())
     clast.clast()
     img_buffer = io.BytesIO()
@@ -160,22 +158,6 @@ def clast():
     plt.clf()
     return render_template('LW7.html', clast_image=clast_image,)
 
-# @app.route('/clast', methods=['GET', 'POST'])
-# def clast():
-#     data = pd.read_csv('AgeDataset-V1.csv', nrows=1000)
-#     Centurydata = data.assign(Century=(data.iloc[:, [6]] / 100).apply(np.ceil))
-#     Centurydata['Century'] = Centurydata['Century'].apply(lambda x: x * 1)
-#     clast = cl.clasterization(Centurydata.iloc[:, [10, 9]].to_numpy(), len(Centurydata.groupby("Century")["Century"].mean()))
-#     clast.clast()
-#     return render_template('clast.html')
-
-
-# @app.route('/findURL', methods=['POST'])
-# def findURL():
-#     session['word'] = request.form["word"]
-#     if (search_engine.contains(session.get('word'))):
-#         return render_template('findURL.html', condition = True)
-#     return render_template('findURL.html')
 
 
 if __name__ == "__main__":
