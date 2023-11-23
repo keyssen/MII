@@ -12,7 +12,6 @@ class clasterization:
         self.k = k
         self.n = len(self.arr)
         self.dim = len(self.arr[0])
-        self.clast()
     def data_distr(self, cluster):
         cluster_content = [[] for i in range(self.k)]
 
@@ -58,14 +57,13 @@ class clasterization:
                 x_coordinates.append(cluster_content[i][q][0])
                 y_coordinates.append(cluster_content[i][q][1])
             plt.scatter(x_coordinates, y_coordinates)
-        plt.show()
     def clast(self):
         cluster = [[0 for i in range(self.dim)] for q in range(self.k)]
         cluster_content = [[] for i in range(self.k)]
 
         for i in range(self.dim):
             for q in range(self.k):
-                cluster[q][i] = random.randint(1, 2)
+                cluster[q][i] = random.randint(0, 2)
 
         cluster_content = self.data_distr(cluster)
         prev_clust = copy.deepcopy(cluster)
